@@ -7,6 +7,8 @@ import ContactForm from "./components/ContactForm/ContactForm";
 import ContactList from "./components/ContactList/ContactList";
 import ContactFilter from "./components/Filter/ContactFilter";
 
+const LS_KEY = "contacts_list";
+
 class App extends Component {
   state = {
     contacts: [
@@ -17,6 +19,19 @@ class App extends Component {
     ],
     filter: "",
   };
+
+  componentDidMount() {
+    const savedContacts = localStorage.getItem(LS_KEY);
+    if (savedContacts) {
+      this.setState({ contacts: JSON.parse(savedContacts) });
+    }
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (prevState.contacts.length !== this.state.contacts.length) {
+      localStorage.setItem(LS_KEY, JSON.stringify(this.state.contacts));
+    }
+  }
 
   addContact = ({ name, number }) => {
     const { contacts } = this.state;
@@ -40,7 +55,7 @@ class App extends Component {
     }));
   };
 
-  handleDeleteContact = (contactId) => {
+  deleteContact = (contactId) => {
     this.setState((prevState) => ({
       contacts: prevState.contacts.filter(
         (contact) => contact.id !== contactId
@@ -76,7 +91,7 @@ class App extends Component {
           />
           <ContactList
             contacts={filteredContacts}
-            onDelete={this.handleDeleteContact}
+            onDelete={this.deleteContact}
           ></ContactList>
         </Container>
       </>
